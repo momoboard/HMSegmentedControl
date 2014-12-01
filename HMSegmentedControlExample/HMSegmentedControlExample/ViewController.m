@@ -31,70 +31,35 @@
     }
     
     // Minimum code required to use the segmented control with the default styling.
-    HMSegmentedControl *segmentedControl = [[HMSegmentedControl alloc] initWithSectionTitles:@[@"Trending", @"News", @"Library"]];
-    segmentedControl.frame = CGRectMake(0, 0 + yDelta, 320, 40);
-    segmentedControl.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleWidth;
-    [segmentedControl addTarget:self action:@selector(segmentedControlChangedValue:) forControlEvents:UIControlEventValueChanged];
-    [self.view addSubview:segmentedControl];
-    
-    
-    // Segmented control with scrolling
-    HMSegmentedControl *segmentedControl1 = [[HMSegmentedControl alloc] initWithSectionTitles:@[@"One", @"Two", @"Three", @"Four", @"Five", @"Six", @"Seven", @"Eight"]];
-    segmentedControl1.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleWidth;
-    segmentedControl1.frame = CGRectMake(0, 40 + yDelta, 320, 40);
-    segmentedControl1.segmentEdgeInset = UIEdgeInsetsMake(0, 10, 0, 10);
-    segmentedControl1.selectionStyle = HMSegmentedControlSelectionStyleFullWidthStripe;
-    segmentedControl1.selectionIndicatorLocation = HMSegmentedControlSelectionIndicatorLocationDown;
-    [segmentedControl1 addTarget:self action:@selector(segmentedControlChangedValue:) forControlEvents:UIControlEventValueChanged];
-    [self.view addSubview:segmentedControl1];
-    
-    
-    // Segmented control with images
-    HMSegmentedControl *segmentedControl2 = [[HMSegmentedControl alloc] initWithSectionImages:@[[UIImage imageNamed:@"1"], [UIImage imageNamed:@"2"], [UIImage imageNamed:@"3"], [UIImage imageNamed:@"4"]] sectionSelectedImages:@[[UIImage imageNamed:@"1-selected"], [UIImage imageNamed:@"2-selected"], [UIImage imageNamed:@"3-selected"], [UIImage imageNamed:@"4-selected"]]];
-    segmentedControl2.frame = CGRectMake(0, 100 + yDelta, 320, 50);
-    segmentedControl2.selectionIndicatorHeight = 4.0f;
-    segmentedControl2.backgroundColor = [UIColor clearColor];
-    segmentedControl2.selectionIndicatorLocation = HMSegmentedControlSelectionIndicatorLocationDown;
-    segmentedControl2.selectionStyle = HMSegmentedControlSelectionStyleTextWidthStripe;
-    [segmentedControl2 addTarget:self action:@selector(segmentedControlChangedValue:) forControlEvents:UIControlEventValueChanged];
-    [self.view addSubview:segmentedControl2];
-
-    
-    // Segmented control with more customization and indexChangeBlock
-    HMSegmentedControl *segmentedControl3 = [[HMSegmentedControl alloc] initWithSectionTitles:@[@"One", @"Two\n2", @"Three", @"4", @"Five"]];
-    [segmentedControl3 setFrame:CGRectMake(0, 160 + yDelta, 320, 50)];
-    [segmentedControl3 setIndexChangeBlock:^(NSInteger index) {
-        NSLog(@"Selected index %ld (via block)", (long)index);
-    }];
-    segmentedControl3.selectionIndicatorHeight = 4.0f;
-    segmentedControl3.backgroundColor = [UIColor colorWithRed:0.1 green:0.4 blue:0.8 alpha:1];
-    segmentedControl3.textColor = [UIColor whiteColor];
-    segmentedControl3.selectedTextColor = [UIColor whiteColor];
-    segmentedControl3.selectionIndicatorColor = [UIColor colorWithRed:0.5 green:0.8 blue:1 alpha:1];
-    segmentedControl3.selectionStyle = HMSegmentedControlSelectionStyleBox;
-    segmentedControl3.selectedSegmentIndex = HMSegmentedControlNoSegment;
-    segmentedControl3.selectionIndicatorLocation = HMSegmentedControlSelectionIndicatorLocationDown;
-    segmentedControl3.shouldAnimateUserSelection = NO;
-    segmentedControl3.tag = 2;
-    [self.view addSubview:segmentedControl3];
+ 
     
     
     // Tying up the segmented control to a scroll view
-    self.segmentedControl4 = [[HMSegmentedControl alloc] initWithFrame:CGRectMake(0, 240 + yDelta, 320, 50)];
-    self.segmentedControl4.sectionTitles = @[@"Worldwide", @"Local", @"Headlines"];
+    self.segmentedControl4 = [[HMSegmentedControl alloc] initWithFrame:CGRectMake(10, 240 + yDelta, 300, 35)];
+    self.segmentedControl4.sectionTitles = @[@"Public messages", @"Private messages"];
+    self.segmentedControl4.type = HMSegmentedControlTypeText;
     self.segmentedControl4.selectedSegmentIndex = 1;
-    self.segmentedControl4.backgroundColor = [UIColor colorWithRed:0.7 green:0.7 blue:0.7 alpha:1];
-    self.segmentedControl4.textColor = [UIColor whiteColor];
-    self.segmentedControl4.selectedTextColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1];
-    self.segmentedControl4.selectionIndicatorColor = [UIColor colorWithRed:0.3 green:0.3 blue:0.3 alpha:1];
+    self.segmentedControl4.backgroundColor = [UIColor whiteColor];
+    self.segmentedControl4.textColor = [UIColor colorWithRed:0.1 green:0.47 blue:0.73 alpha:1];
+    self.segmentedControl4.selectedTextColor = [UIColor whiteColor];
+    self.segmentedControl4.selectionIndicatorColor = [UIColor colorWithRed:0.1 green:0.47 blue:0.73 alpha:1];
     self.segmentedControl4.selectionStyle = HMSegmentedControlSelectionStyleBox;
-    self.segmentedControl4.selectionIndicatorLocation = HMSegmentedControlSelectionIndicatorLocationUp;
+    self.segmentedControl4.selectionIndicatorLocation = HMSegmentedControlSelectionIndicatorLocationNone;
     self.segmentedControl4.tag = 3;
-    
+    self.segmentedControl4.selectionIndicatorBoxOpacity = 1;
+    self.segmentedControl4.layer.cornerRadius = 5;
+    self.segmentedControl4.layer.masksToBounds = YES;
+    self.segmentedControl4.userDraggable = YES;
+    self.segmentedControl4.font = [UIFont systemFontOfSize:14];
+    self.segmentedControl4.layer.borderWidth = 1;
+    self.segmentedControl4.layer.borderColor = [UIColor colorWithRed:0.1 green:0.47 blue:0.73 alpha:1].CGColor;
     __weak typeof(self) weakSelf = self;
     [self.segmentedControl4 setIndexChangeBlock:^(NSInteger index) {
-        [weakSelf.scrollView scrollRectToVisible:CGRectMake(320 * index, 0, 320, 200) animated:YES];
+//        [weakSelf.scrollView scrollRectToVisible:CGRectMake(320 * index, 0, 320, 200) animated:YES];
+         [weakSelf.segmentedControl4 setSectionBagdes:@[[UIImage imageNamed:@"ic_new"],[NSNull null]]];
     }];
+    
+    [self.segmentedControl4 setSectionBagdes:@[[NSNull null],[UIImage imageNamed:@"ic_new"]]];
     
     [self.view addSubview:self.segmentedControl4];
     

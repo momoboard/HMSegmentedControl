@@ -186,6 +186,14 @@
     [self setNeedsLayout];
 }
 
+- (void)setSectionBagdes:(NSArray *)sectionBagdes {
+    _sectionBagdes = sectionBagdes;
+    
+    [self setNeedsLayout];
+}
+
+
+
 - (void)setSelectionIndicatorLocation:(HMSegmentedControlSelectionIndicatorLocation)selectionIndicatorLocation {
 	_selectionIndicatorLocation = selectionIndicatorLocation;
 	
@@ -251,12 +259,14 @@
                 rect = CGRectMake(xOffset, y, [[self.segmentWidthsArray objectAtIndex:idx] floatValue], stringHeight);
             }
             
+
+            NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:titleString];
+            [attrStr addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:5] range:NSMakeRange(0, 2)];
+            
             CATextLayer *titleLayer = [CATextLayer layer];
             titleLayer.frame = rect;
-            titleLayer.font = (__bridge CFTypeRef)(self.font.fontName);
-            titleLayer.fontSize = self.font.pointSize;
             titleLayer.alignmentMode = kCAAlignmentCenter;
-            titleLayer.string = titleString;
+            titleLayer.string = attrStr;
             titleLayer.truncationMode = kCATruncationEnd;
             
             if (self.selectedSegmentIndex == idx) {
@@ -356,6 +366,26 @@
 			
         }];
 	}
+    
+    [self.sectionBagdes enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+       
+        if (![obj isEqual:[NSNull null]]) {
+            UIImage *icon = obj;
+            CGFloat imageWidth = 9;
+            CGFloat imageHeight = 9;
+            CGFloat y = 5;
+            CGFloat x = self.segmentWidth * idx + 10/2.0f;
+            CGRect rect = CGRectMake(x, y, imageWidth, imageHeight);
+            
+            CALayer *imageLayer = [CALayer layer];
+            imageLayer.frame = rect;
+            
+            
+            imageLayer.contents = (id)icon.CGImage;
+            [self.scrollView.layer addSublayer:imageLayer];
+        }
+        
+    }];
     
     // Add the selection indicators
     if (self.selectedSegmentIndex != HMSegmentedControlNoSegment) {
