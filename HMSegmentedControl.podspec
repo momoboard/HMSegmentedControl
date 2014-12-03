@@ -5,9 +5,10 @@ Pod::Spec.new do |s|
   s.homepage     = "https://github.com/HeshamMegid/HMSegmentedControl"
   s.license      = { :type => 'MIT', :file => 'LICENSE.md' }
   s.author       = { "Hesham Abd-Elmegid" => "hesham.abdelmegid@gmail.com" }
-  s.source       = { :git => "https://github.com/HeshamMegid/HMSegmentedControl.git", :tag => "v1.3.0" }
+  s.source       = { :git => "https://github.com/momoboard/HMSegmentedControl.git", :tag => "v1.3.0" }
   s.platform     = :ios, '5.0'
   s.requires_arc = true
+  s.ios.dependency 'FontAwesome+iOS'
   s.source_files = 'HMSegmentedControl/*.{h,m}'
   s.framework  = 'QuartzCore'
 end
