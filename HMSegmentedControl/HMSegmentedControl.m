@@ -100,18 +100,18 @@
 }
 
 - (instancetype)initWithSectionImages:(NSArray *)sectionImages sectionSelectedImages:(NSArray *)sectionSelectedImages titlesForSections:(NSArray *)sectiontitles {
-	self = [super initWithFrame:CGRectZero];
+    self = [super initWithFrame:CGRectZero];
     
     if (self) {
         [self commonInit];
-		
-		if (sectionImages.count != sectiontitles.count) {
-			[NSException raise:NSRangeException format:@"***%s: Images bounds (%ld) Dont match Title bounds (%ld)", sel_getName(_cmd), (unsigned long)sectionImages.count, (unsigned long)sectiontitles.count];
+        
+        if (sectionImages.count != sectiontitles.count) {
+            [NSException raise:NSRangeException format:@"***%s: Images bounds (%ld) Dont match Title bounds (%ld)", sel_getName(_cmd), (unsigned long)sectionImages.count, (unsigned long)sectiontitles.count];
         }
-		
+        
         self.sectionImages = sectionImages;
         self.sectionSelectedImages = sectionSelectedImages;
-		self.sectionTitles = sectiontitles;
+        self.sectionTitles = sectiontitles;
         self.type = HMSegmentedControlTypeTextImages;
     }
     
@@ -195,11 +195,11 @@
 
 
 - (void)setSelectionIndicatorLocation:(HMSegmentedControlSelectionIndicatorLocation)selectionIndicatorLocation {
-	_selectionIndicatorLocation = selectionIndicatorLocation;
-	
-	if (selectionIndicatorLocation == HMSegmentedControlSelectionIndicatorLocationNone) {
-		self.selectionIndicatorHeight = 0.0f;
-	}
+    _selectionIndicatorLocation = selectionIndicatorLocation;
+    
+    if (selectionIndicatorLocation == HMSegmentedControlSelectionIndicatorLocationNone) {
+        self.selectionIndicatorHeight = 0.0f;
+    }
 }
 
 - (void)setSelectionIndicatorBoxOpacity:(CGFloat)selectionIndicatorBoxOpacity
@@ -227,7 +227,7 @@
     
     if (self.type == HMSegmentedControlTypeText) {
         [self.sectionTitles enumerateObjectsUsingBlock:^(id titleString, NSUInteger idx, BOOL *stop) {
-
+            
             CGFloat stringWidth = 0;
             CGFloat stringHeight = 0;
             if([titleString respondsToSelector:@selector(sizeWithAttributes:)]) {
@@ -235,8 +235,8 @@
                 stringHeight = [titleString sizeWithAttributes:@{NSFontAttributeName: self.font}].height;
             }
             else {
-                stringWidth = roundf([titleString sizeWithFont:self.font].width);
-                stringHeight = roundf([titleString sizeWithFont:self.font].height);
+                stringWidth = roundf(150);
+                stringHeight = roundf(15);
             }
             
             // Text inside the CATextLayer will appear blurry unless the rect values are rounded
@@ -259,15 +259,20 @@
                 rect = CGRectMake(xOffset, y, [[self.segmentWidthsArray objectAtIndex:idx] floatValue], stringHeight);
             }
             
-
-            NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:titleString];
-            [attrStr addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:5] range:NSMakeRange(0, 2)];
             
             CATextLayer *titleLayer = [CATextLayer layer];
             titleLayer.frame = rect;
-            titleLayer.alignmentMode = kCAAlignmentCenter;
-            titleLayer.string = attrStr;
+            if ([titleString isKindOfClass:[NSString class]]) {
+                titleLayer.font = (__bridge CFTypeRef)(self.font.fontName);
+                titleLayer.fontSize = self.font.pointSize;
+                titleLayer.alignmentMode = kCAAlignmentCenter;
+                titleLayer.string = titleString;
+                
+            }else{
+                titleLayer.string = titleString;
+            }
             titleLayer.truncationMode = kCATruncationEnd;
+            
             
             if (self.selectedSegmentIndex == idx) {
                 titleLayer.foregroundColor = self.selectedTextColor.CGColor;
@@ -277,98 +282,17 @@
             
             titleLayer.contentsScale = [[UIScreen mainScreen] scale];
             [self.scrollView.layer addSublayer:titleLayer];
+            
+            CALayer *boarder = [CALayer layer];
+            boarder.frame = CGRectMake((idx+1) * self.segmentWidth, 0, 1, self.frame.size.height);
+            boarder.backgroundColor = self.textColor.CGColor;
+            [self.scrollView.layer addSublayer:boarder];
         }];
-    } else if (self.type == HMSegmentedControlTypeImages) {
-        [self.sectionImages enumerateObjectsUsingBlock:^(id iconImage, NSUInteger idx, BOOL *stop) {
-            UIImage *icon = iconImage;
-            CGFloat imageWidth = icon.size.width;
-            CGFloat imageHeight = icon.size.height;
-            CGFloat y = roundf(CGRectGetHeight(self.frame) - self.selectionIndicatorHeight) / 2 - imageHeight / 2 + ((self.selectionIndicatorLocation == HMSegmentedControlSelectionIndicatorLocationUp) ? self.selectionIndicatorHeight : 0);
-            CGFloat x = self.segmentWidth * idx + (self.segmentWidth - imageWidth)/2.0f;
-            CGRect rect = CGRectMake(x, y, imageWidth, imageHeight);
-            
-            CALayer *imageLayer = [CALayer layer];
-            imageLayer.frame = rect;
-            
-            if (self.selectedSegmentIndex == idx) {
-                if (self.sectionSelectedImages) {
-                    UIImage *highlightIcon = [self.sectionSelectedImages objectAtIndex:idx];
-                    imageLayer.contents = (id)highlightIcon.CGImage;
-                } else {
-                    imageLayer.contents = (id)icon.CGImage;
-                }
-            } else {
-                imageLayer.contents = (id)icon.CGImage;
-            }
-            
-            [self.scrollView.layer addSublayer:imageLayer];
-        }];
-    } else if (self.type == HMSegmentedControlTypeTextImages){
-		[self.sectionImages enumerateObjectsUsingBlock:^(id iconImage, NSUInteger idx, BOOL *stop) {
-            // When we have both an image and a title, we start with the image and use segmentImageTextPadding before drawing the text.
-            // So the image will be left to the text, centered in the middle
-            UIImage *icon = iconImage;
-            CGFloat imageWidth = icon.size.width;
-            CGFloat imageHeight = icon.size.height;
-			
-			CGFloat stringHeight = roundf([self.sectionTitles[idx] sizeWithFont:self.font].height);
-            
-			CGFloat yOffset = roundf(((CGRectGetHeight(self.frame) - self.selectionIndicatorHeight) / 2) - (stringHeight / 2));
-            
-            CGFloat imageXOffset = self.segmentEdgeInset.left; // Start with edge inset
-            if (self.segmentWidthStyle == HMSegmentedControlSegmentWidthStyleFixed)
-                imageXOffset = self.segmentWidth * idx;
-            else if (self.segmentWidthStyle == HMSegmentedControlSegmentWidthStyleDynamic) {
-                // When we are drawing dynamic widths, we need to loop the widths array to calculate the xOffset
-                NSInteger i = 0;
-                for (NSNumber *width in self.segmentWidthsArray) {
-                    if (idx == i)
-                        break;
-                    imageXOffset = imageXOffset + [width floatValue];
-                    i++;
-                }
-            }
-            
-            CGRect imageRect = CGRectMake(imageXOffset, yOffset, imageWidth, imageHeight);
-			
-            // Use the image offset and padding to calculate the text offset
-            CGFloat textXOffset = imageXOffset + imageWidth + segmentImageTextPadding;
-            
-            // The text rect's width is the segment width without the image, image padding and insets
-            CGRect textRect = CGRectMake(textXOffset, yOffset, [[self.segmentWidthsArray objectAtIndex:idx] floatValue]-imageWidth-segmentImageTextPadding-self.segmentEdgeInset.left-self.segmentEdgeInset.right, stringHeight);
-            CATextLayer *titleLayer = [CATextLayer layer];
-            titleLayer.frame = textRect;
-            titleLayer.font = (__bridge CFTypeRef)(self.font.fontName);
-            titleLayer.fontSize = self.font.pointSize;
-            titleLayer.alignmentMode = kCAAlignmentCenter;
-            titleLayer.string = self.sectionTitles[idx];
-            titleLayer.truncationMode = kCATruncationEnd;
-			
-            CALayer *imageLayer = [CALayer layer];
-            imageLayer.frame = imageRect;
-			
-            if (self.selectedSegmentIndex == idx) {
-                if (self.sectionSelectedImages) {
-                    UIImage *highlightIcon = [self.sectionSelectedImages objectAtIndex:idx];
-                    imageLayer.contents = (id)highlightIcon.CGImage;
-                } else {
-                    imageLayer.contents = (id)icon.CGImage;
-                }
-				titleLayer.foregroundColor = self.selectedTextColor.CGColor;
-            } else {
-                imageLayer.contents = (id)icon.CGImage;
-				titleLayer.foregroundColor = self.textColor.CGColor;
-            }
-            
-            [self.scrollView.layer addSublayer:imageLayer];
-			titleLayer.contentsScale = [[UIScreen mainScreen] scale];
-            [self.scrollView.layer addSublayer:titleLayer];
-			
-        }];
-	}
+    }
+    
     
     [self.sectionBagdes enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-       
+        
         if (![obj isEqual:[NSNull null]]) {
             UIImage *icon = obj;
             CGFloat imageWidth = 9;
@@ -456,22 +380,25 @@
     CGFloat sectionWidth = 0.0f;
     
     if (self.type == HMSegmentedControlTypeText) {
-        CGFloat stringWidth = [[self.sectionTitles objectAtIndex:self.selectedSegmentIndex] sizeWithFont:self.font].width;
-        sectionWidth = stringWidth;
+        if ([[self.sectionTitles objectAtIndex:self.selectedSegmentIndex] isKindOfClass:[NSString class]]) {
+            CGFloat stringWidth = [[self.sectionTitles objectAtIndex:self.selectedSegmentIndex] sizeWithFont:self.font].width;
+            sectionWidth = stringWidth;
+        }
+        
     } else if (self.type == HMSegmentedControlTypeImages) {
         UIImage *sectionImage = [self.sectionImages objectAtIndex:self.selectedSegmentIndex];
         CGFloat imageWidth = sectionImage.size.width;
         sectionWidth = imageWidth;
     } else if (self.type == HMSegmentedControlTypeTextImages) {
-		CGFloat stringWidth = [[self.sectionTitles objectAtIndex:self.selectedSegmentIndex] sizeWithFont:self.font].width;
-		UIImage *sectionImage = [self.sectionImages objectAtIndex:self.selectedSegmentIndex];
-		CGFloat imageWidth = sectionImage.size.width;
+        CGFloat stringWidth = [[self.sectionTitles objectAtIndex:self.selectedSegmentIndex] sizeWithFont:self.font].width;
+        UIImage *sectionImage = [self.sectionImages objectAtIndex:self.selectedSegmentIndex];
+        CGFloat imageWidth = sectionImage.size.width;
         if (self.segmentWidthStyle == HMSegmentedControlSegmentWidthStyleFixed) {
             sectionWidth = MAX(stringWidth, imageWidth);
         } else if (self.segmentWidthStyle == HMSegmentedControlSegmentWidthStyleDynamic) {
             sectionWidth = imageWidth + segmentImageTextPadding + stringWidth;
         }
-	}
+    }
     
     if (self.selectionStyle == HMSegmentedControlSelectionStyleArrow) {
         CGFloat widthToEndOfSelectedSegment = (self.segmentWidth * self.selectedSegmentIndex) + self.segmentWidth;
@@ -537,13 +464,28 @@
     }
     
     if (self.type == HMSegmentedControlTypeText && self.segmentWidthStyle == HMSegmentedControlSegmentWidthStyleFixed) {
-        for (NSString *titleString in self.sectionTitles) {
-#if  __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
-            CGFloat stringWidth = [titleString sizeWithAttributes:@{NSFontAttributeName: self.font}].width + self.segmentEdgeInset.left + self.segmentEdgeInset.right;
-#else
-            CGFloat stringWidth = [titleString sizeWithFont:self.font].width + self.segmentEdgeInset.left + self.segmentEdgeInset.right;
-#endif
-            self.segmentWidth = MAX(stringWidth, self.segmentWidth);
+        for (id titleString in self.sectionTitles) {
+            //#if  __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
+            //            CGFloat stringWidth = 0;
+            //            if ([titleString isKindOfClass:[NSString class]]) {
+            //                NSString *title = titleString;
+            //                stringWidth = [title sizeWithAttributes:@{NSFontAttributeName: self.font}].width + self.segmentEdgeInset.left + self.segmentEdgeInset.right;
+            //            }else{
+            //                NSMutableAttributedString *title = titleString;
+            //                CGRect textRect = [titleString boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)
+            //                                                               options:(NSStringDrawingUsesLineFragmentOrigin)
+            //                                                               context:nil];
+            //                CGSize size = textRect.size;
+            //
+            //                size.width  = ceilf(size.width);
+            //                stringWidth = size.width;
+            //            }
+            //
+            //#else
+            //            CGFloat stringWidth = [titleString sizeWithFont:self.font].width + self.segmentEdgeInset.left + self.segmentEdgeInset.right;
+            //#endif
+            //            self.segmentWidth = MAX(stringWidth, self.segmentWidth);
+            
         }
     } else if (self.type == HMSegmentedControlTypeText && self.segmentWidthStyle == HMSegmentedControlSegmentWidthStyleDynamic) {
         NSMutableArray *mutableSegmentWidths = [NSMutableArray array];
@@ -593,7 +535,9 @@
         }
         self.segmentWidthsArray = [mutableSegmentWidths copy];
     }
-
+    
+    
+    
     self.scrollView.scrollEnabled = self.isUserDraggable;
     self.scrollView.contentSize = CGSizeMake([self totalSegmentedControlWidth], self.frame.size.height);
 }
@@ -760,7 +704,7 @@
             
             // Animate to new position
             [CATransaction begin];
-            [CATransaction setAnimationDuration:0.15f];
+            [CATransaction setAnimationDuration:0.0f];
             [CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear]];
             [self setArrowFrame];
             self.selectionIndicatorBoxLayer.frame = [self frameForSelectionIndicator];
