@@ -8,7 +8,6 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/momoboard/HMSegmentedControl.git", :tag => "v1.3.0" }
   s.platform     = :ios, '5.0'
   s.requires_arc = true
-  s.ios.dependency 'FontAwesome+iOS'
   s.source_files = 'HMSegmentedControl/*.{h,m}'
   s.framework  = 'QuartzCore'
 end
